@@ -1,11 +1,9 @@
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.StringTokenizer;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
-import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
@@ -14,12 +12,10 @@ import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
 public class MissingCard {
-  public static class TokenizerMapper extends Mapper<Object, Text, Text, IntWritable>{
+  private static class TokenizerMapper extends Mapper<Object, Text, Text, IntWritable>{
 
-    private final static IntWritable one = new IntWritable(1);
-    private Text word = new Text();
-
-    public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
+    @SuppressWarnings("unused")
+    public void map(Text value, Context context) throws IOException, InterruptedException {
       //value = (HEART,2)
       //value = (Diamond,3)
       String line = value.toString();
@@ -28,15 +24,14 @@ public class MissingCard {
     }
   }
 
-  public static class IntSumReducer extends Reducer<Text,IntWritable,Text,IntWritable> {
-    private IntWritable result = new IntWritable();
+  private static class IntSumReducer extends Reducer<Text,IntWritable,Text,IntWritable> {
 
     public void reduce(Text key, Iterable<IntWritable> values, Context context) throws IOException, InterruptedException {
       // Input to Reducer = (HEART,(1,2,3,4,7,8,9,11,12));
       // Input to Reducer = (DIAMOND,(1,2,3,4,7,9,11,12));
-      ArrayList<Integer> nums = new ArrayList<Integer>();
+      ArrayList<Integer> nums = new ArrayList<>();
       int sum = 0;
-      int tempVal = 0;
+      int tempVal;
       for (IntWritable val : values) {
         sum+= val.get();
         tempVal = val.get();
