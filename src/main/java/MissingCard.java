@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
@@ -15,7 +16,7 @@ public class MissingCard {
   private static class TokenizerMapper extends Mapper<Object, Text, Text, IntWritable>{
 
     @SuppressWarnings("unused")
-    public void map(Text value, Context context) throws IOException, InterruptedException {
+    public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
       //value = (HEART,2)
       //value = (Diamond,3)
       String line = value.toString();
@@ -54,6 +55,10 @@ public class MissingCard {
     job.setMapperClass(TokenizerMapper.class);
     job.setCombinerClass(IntSumReducer.class);
     job.setReducerClass(IntSumReducer.class);
+
+    job.setMapOutputKeyClass(Text.class);
+    job.setMapOutputValueClass(IntWritable.class);
+
     job.setOutputKeyClass(Text.class);
     job.setOutputValueClass(IntWritable.class);
     FileInputFormat.addInputPath(job, new Path(args[0]));
